@@ -341,6 +341,7 @@
         loadScript('./core/timeSystem.js');
         loadScript('./core/initCommands.js');
         loadScript('./core/panelCommands.js');
+        loadScript('./core/LgDBCommSystem.js');
 
         // Load all the other modules.
         loadScriptRecursive('.');

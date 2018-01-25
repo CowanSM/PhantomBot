@@ -212,6 +212,33 @@ public class SqliteStore extends DataStore {
     }
 
     @Override
+    public void AddFileAutoInc(String fName) {
+        // same add AddFile but adds auto-inc id field
+        // "FileExists" already checks the connections.
+        // CheckConnection();
+
+        fName = validateFname(fName);
+
+        if (!FileExists(fName)) {
+            try (Statement statement = connection.createStatement()) {
+                statement.setQueryTimeout(10);
+
+                statement.executeUpdate("CREATE TABLE phantombot_" + fName + " (id auto_increment not null primary key, section string, variable string, value string);");
+            } catch (SQLException ex) {
+                com.gmt2001.Console.err.printStackTrace(ex);
+            }
+
+            if (use_indexes) {
+                try (PreparedStatement statement = connection.prepareStatement("CREATE INDEX IF NOT EXISTS " + fName + "_idx on phantombot_" + fName + " (variable);")) {
+                    statement.execute();
+                } catch (SQLException ex) {
+                    com.gmt2001.Console.err.printStackTrace(ex);
+                }
+            }
+        }
+    }
+
+    @Override
     public void AddFile(String fName) {
         // "FileExists" already checks the connections.
         // CheckConnection();
@@ -824,6 +851,60 @@ public class SqliteStore extends DataStore {
 
         return result;
 
+    }
+
+    @Override
+    public String GetNext(String fName) {
+        // return the next id from the collection, only works if field 'id' is set (and is auto_increment)
+        String result = null;
+
+        fName = validateFname(fName);
+
+        if (!FileExists(fName)) {
+            return result;
+        }
+
+        // make sure that the table has the id field?
+        // below doesn't work unfortunately, removing it for now (apparently COL_LENGTH does not exist in slqlite?
+        //try (PreparedStatement statement = connection.prepareStatement("SELECT COL_LENGTH('phantombot.phantombot_" + fName + "', 'id')")) {
+        //    statement.setQueryTimeout(10);
+        //
+        //    try (ResultSet rs = statement.executeQuery()) {
+        //        if (rs.next()) {
+                    // means non null?
+                    // do actual query
+                    try (PreparedStatement stmnt = connection.prepareStatement("SELECT * FROM phantombot_" + fName + " order by id asc limit 1;")) {
+                        stmnt.setQueryTimeout(10);
+
+                        try (ResultSet rs2 = stmnt.executeQuery()) {
+                            if (rs2.next()) {
+                                result = rs2.getString("value");
+
+                                // remove the message from the table
+                                try (PreparedStatement removeStmnt = connection.prepareStatement("DELETE FROM phantombot_" + fName + " WHERE id = " + rs2.getString("id") + ";")) {
+                                    removeStmnt.setQueryTimeout(10);
+                                    try (ResultSet removeRS = removeStmnt.executeQuery()) {
+                                        // done
+                                    } catch (SQLException ex) {
+                                        com.gmt2001.Console.err.printStackTrace(ex);
+                                    }
+                                } catch (SQLException ex) {
+                                    com.gmt2001.Console.err.printStackTrace(ex);
+                                }
+                            }
+                        }
+                    } catch (SQLException ex) {
+                        com.gmt2001.Console.err.printStackTrace(ex);
+                    }
+        //        }
+        //    } catch (SQLException ex) {
+        //        com.gmt2001.Console.err.printStackTrace(ex);
+        //   }
+        //} catch (SQLException ex) {
+        //    com.gmt2001.Console.err.printStackTrace(ex);
+        //}
+
+        return result;
     }
 
     @Override

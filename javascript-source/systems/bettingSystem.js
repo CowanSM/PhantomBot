@@ -3,6 +3,11 @@
  * bettingSystem.js
  *
  */
+
+// import from underscore
+//import * as _ from "./underscore.js";
+
+
 (function() {
 	var bets = {},
 	    timeout,
@@ -34,6 +39,8 @@
 	 * @param {int} timer
 	 */
 	function open(sender, title, options, minimum, maximum, timer) {
+		//$.log.error(sender + ' ' + title + ' ' + options + ' ' + minimum + ' ' + maximum + ' ' + timer);
+
 		if (title === undefined || options === undefined || isNaN(parseInt(minimum)) || isNaN(parseInt(maximum))) {
 			$.say($.whisperPrefix(sender) + $.lang.get('bettingsystem.open.usage'));
 			return;
@@ -44,7 +51,7 @@
 			if (sender == $.botName) return;
 			$.say($.whisperPrefix(sender) + $.lang.get('bettingsystem.open.error.opened'));
 			return;
-		} else if (!options.includes(', ')) {
+		} else if (!options.includes(',') || !options.includes(';')) {
 			$.say($.whisperPrefix(sender) + $.lang.get('bettingsystem.open.usage'));
 			return;
 		}
@@ -54,7 +61,7 @@
 		bet.maximum = parseInt(maximum);
 		bet.status = true;
 		bet.opened = true;
-		
+
 		if (timer !== undefined && !isNaN(parseInt(timer)) && timer > 0) {
 			bet.timer = timer;
 			timeout = setTimeout(function() {
@@ -62,14 +69,21 @@
 			}, timer * 6e4);
 		}
 
-		var split = options.split(', ');
+		var split = options.split(';');
 
 		for (var i = 0; i < split.length; i++) {
-			bet.options[split[i].toLowerCase()] = { bets: 0, total: 0 };
-			bet.opt.push(split[i].toLowerCase());
+			// further split to get the lines for each option
+			var line = split[i].split(',');
+			if (line.length < 3) line.push(1);
+			if (line.length < 3) line.push(1);
+			bet.options[line[0].toLowerCase()] = { bets: 0, total: 0, 'for': parseInt(line[1]), 'against': parseInt(line[2]) };
+			bet.opt.push(line[0].toLowerCase());
 		}
 
-		$.say($.lang.get('bettingsystem.open.success', title, options));
+		$.say($.lang.get('bettingsystem.open.success', bet.minimum, bet.maximum));
+		$._.each(bet.opt, function(o) {
+			$.say($.lang.get('bettingsystem.open.option', o, bet.options[o]['for'], bet.options[o]['against']));
+		});
 	}
 
 	/**
@@ -83,6 +97,7 @@
 		if (option === undefined && bet.opened === true) {
 			bet.opened = false;
 			$.say($.whisperPrefix(sender) + $.lang.get('bettingsystem.close.error.usage'));
+			$.say($.lang.get('bettingsystem.close.closed'));
 			return;
 		} else if (option === undefined) {
 			if (sender == $.botName) return;
@@ -95,24 +110,34 @@
 
 		clearInterval(timeout);
 
-		bet.status = false;
-		bet.opened = false;
+		var optinfo = bet.options[option];
+		var ratio = optinfo['for'] / optinfo['against'];
 
 		var winners = [],
 		    total = 0,
 		    give = 0,
 		    i;
 
-		$.say($.lang.get('bettingsystem.close.success', option));
+		if (bet.status)
+			$.say($.lang.get('bettingsystem.close.success', option));
+		else
+			$.say($.lang.get('bettingsystem.close.winning', option));
+
+		bet.status = false;
+		bet.opened = false;
 
 		$.inidb.setAutoCommit(false);
-		for (i in bets) {
-			if (bets[i].option.equalsIgnoreCase(option)) {
-				winners.push(i.toLowerCase());
-				give = (((bet.total / bet.options[option].bets) * parseFloat(gain / 100)) + parseInt(bets[i].amount));
+		if (Object.keys(bets).length > 0) {
+			$._.each(Object.keys(bets), function(better) {
+				var bet = bets[better];
+				if (!bet.option.equalsIgnoreCase(option)) return;
+				winners.push(better.toLowerCase());
+				give = parseInt(bet.amount) * (ratio);
+				$.say($.whisperPrefix(better) + $.lang.get('bettingsystem.close.winner', $.getPointsString(give)));
 				total += give;
-				$.inidb.incr('points', i.toLowerCase(), Math.floor(give));
-			}
+				give += parseInt(bet.amount);
+				$.inidb.incr('points', better.toLowerCase(), Math.floor(give));
+			});
 		}
 		$.inidb.setAutoCommit(true);
 
@@ -178,7 +203,7 @@
 	 * @param {string} message
 	 */
 	function message(sender, message) {
-		if (warningMessages) {
+		if (true) {
 			$.say($.whisperPrefix(sender) + message);
 		}
 	}
@@ -224,11 +249,13 @@
 		bet.options[option].total += parseInt(amount);
 		bets[sender] = { option: option, amount: amount };
 		$.inidb.decr('points', sender, amount);
+
+		$.say($.whisperPrefix(sender) + $.lang.get('bettingsystem.bet.success', amount, option));
 	}
 
 	/**
 	 * @event command
-	 * @info Used for commands. 
+	 * @info Used for commands.
 	 *
 	 * @param {object} event
 	 */
@@ -246,7 +273,7 @@
 			}
 
 			/**
-			 * @commandpath bet open ["title"] ["option1, option2, option3"] [minimum bet] [maximum bet] [close timer] - Opens a bet with those options. 
+			 * @commandpath bet open ["title"] ["option1, option2, option3"] [minimum bet] [maximum bet] [close timer] - Opens a bet with those options.
 			 */
 			if (action.equalsIgnoreCase('open')) {
 				open(sender, args[1], args[2], args[3], args[4], args[5]);

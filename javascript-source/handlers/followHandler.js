@@ -18,7 +18,7 @@
         followQueue = new java.util.concurrent.ConcurrentLinkedQueue,
         lastFollow = $.systemTime(),
         announceFollows = false;
-        
+
     /*
      * @function updateFollowConfig
      */
@@ -48,12 +48,25 @@
         announceFollows = true;
     });
 
+	/*
+     * @event twitchUnfollow
+     */
+    $.bind('twitchUnfollow', function(event) {
+		var follower = event.getFollower();
+
+		// remove user from 'regulars' group (back to viewer)
+		$.setUserGroupById(follower, 7); // viewers are group 7
+	});
+
     /*
      * @event twitchFollow
      */
     $.bind('twitchFollow', function(event) {
         var follower = event.getFollower(),
             s = followMessage;
+
+		// add user to the 'regulars' group
+		$.setUserGroupById(follower, 6); // 'regulars' are group 6
 
         if (announceFollows === true && followToggle === true) {
             if (s.match(/\(name\)/)) {
@@ -73,7 +86,7 @@
             if (followReward > 0) {
                 $.inidb.incr('points', follower, followReward);
             }
-            
+
             $.writeToFile(follower + ' ', './addons/followHandler/latestFollower.txt', false);
             $.inidb.set('streamInfo', 'lastFollow', follower);
         }
@@ -194,7 +207,7 @@
         $.registerChatCommand('./handlers/followHandler.js', 'checkfollow', 2);
         $.registerChatCommand('./handlers/followHandler.js', 'shoutout', 2);
 
-        setInterval(runFollows, 2e3, 'scripts::handlers::followHandler.js');
+        setInterval(function() { runFollows(); }, 2e3, 'scripts::handlers::followHandler.js');
     });
 
     $.updateFollowConfig = updateFollowConfig;

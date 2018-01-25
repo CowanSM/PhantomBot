@@ -149,6 +149,8 @@ public class DataStore {
         return new String[] { };
     }
 
+    public String GetNext(String fName) { return ""; }
+
     public String GetString(String fName, String section, String key) {
         return "";
     }
@@ -263,6 +265,9 @@ public class DataStore {
     public void AddFile(String fName) {
     }
 
+    public void AddFileAutoInc(String fName) {
+    }
+
     public void RemoveFile(String fName) {
     }
 
@@ -284,6 +289,8 @@ public class DataStore {
     public String get(String fName, String key) {
         return GetString(fName, "", key);
     }
+
+    public String getNext(String fName) { return GetString(fName, "", "default"); }
 
     public void set(String fName, String key, String value) {
         SetString(fName, "", key, value);

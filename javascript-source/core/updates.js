@@ -91,12 +91,12 @@
         }
 
         $.consoleLn('Adding new default custom commands...');
-        $.inidb.set('command', 'uptime', '(pointtouser) (channelname) has been online for (uptime)');
-        $.inidb.set('command', 'followage', '(followage)');
-        $.inidb.set('command', 'playtime', '(pointtouser) (channelname) has been playing (game) for (playtime)');
-        $.inidb.set('command', 'title', '(pointtouser) (titleinfo)');
-        $.inidb.set('command', 'game', '(pointtouser) (gameinfo)');
-        $.inidb.set('command', 'age', '(age)');
+        //$.inidb.set('command', 'uptime', '(pointtouser) (channelname) has been online for (uptime)');
+        //$.inidb.set('command', 'followage', '(followage)');
+        //$.inidb.set('command', 'playtime', '(pointtouser) (channelname) has been playing (game) for (playtime)');
+        //$.inidb.set('command', 'title', '(pointtouser) (titleinfo)');
+        //$.inidb.set('command', 'game', '(pointtouser) (gameinfo)');
+        //$.inidb.set('command', 'age', '(age)');
 
         $.consoleLn('Installing old updates...');
         versions = ['installedv2', 'installedv2.0.5', 'installedv2.0.6', 'installedv2.0.7', 'installedv2.0.7.2', 

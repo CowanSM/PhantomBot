@@ -1,11 +1,15 @@
 $.lang.register('bettingsystem.open.usage', 'Usage: !bet open ["title"] ["option1, option2, etc."] [minimum bet] [maximum bet] [close timer mins] - The quotes are needed for the title and options.');
 $.lang.register('bettingsystem.open.error', 'You must chose a winning option on the previous bet before you can open a new one. Use !bet close [option]');
 $.lang.register('bettingsystem.open.error.opened', 'A bet is already opened.');
-$.lang.register('bettingsystem.open.success', 'A bet is now opened! "$1". Bet options: "$2". Bet with: !bet [amount] [option]');
+$.lang.register('bettingsystem.open.success', 'A new bet has opened! Minimum bet is $1, Maximum is $2. Bet options are as follows:');
+$.lang.register('bettingsystem.open.option', '$1 - Payout $2:$3.');
 $.lang.register('bettingsystem.close.error.usage', 'The bet is now closed! Waiting on winning result. Use !bet close [winning option]');
 $.lang.register('bettingsystem.close.usage', 'Usage: !bet close [winning option]');
-$.lang.register('bettingsystem.close.success', 'Bet is now closed! Winning option is $1! Calculating results and giving points to the winners!');
-$.lang.register('bettingsystem.close.semi.success', 'The bet is now closed! Waiting on a winning option.');
+$.lang.register('bettingsystem.close.closed', 'Betting is now closed! Winner will be announced shortly!');
+$.lang.register('bettingsystem.close.success', 'Betting is now closed! Winning option is $1! Calculating results and giving points to the winners!');
+$.lang.register('bettingsystem.close.winning', 'Winning option is $1! Processing bets and awarding winning bets.');
+$.lang.register('bettingsystem.close.winner', 'Congratulations! You have won $1 in the last round.');
+$.lang.register('bettingsystem.close.semi.success', 'Betting is now closed! Winner will be announced shortly!');
 $.lang.register('bettingsystem.close.success.winners', 'A total of $1 players won this bet! There was a total of $2 was won for the people who placed a bet on $3!');
 $.lang.register('bettingsystem.save.format', 'Title: "$1", Options: "$2", Total Points: $3, Total Entries: $4, Points Won: $5.');
 $.lang.register('bettingsystem.results', 'Current bet: Title: "$1", Options: "$2", Total Points: $3, Total Entries: $4');
@@ -17,6 +21,7 @@ $.lang.register('bettingsystem.bet.error.max', 'The maximum bet you can place is
 $.lang.register('bettingsystem.bet.error.points', 'You don\'t have enough $1 to bet that much.');
 $.lang.register('bettingsystem.bet.betplaced', 'You already placed a bet of $1 on $2.');
 $.lang.register('bettingsystem.bet.null', 'That is not a valid bet option.');
+$.lang.register('bettingsystem.bet.success', 'You have successfully placed a bet for $1 on $2.')
 $.lang.register('bettingsystem.toggle.save', 'Betting results will $1 be saved after closing a bet.');
 $.lang.register('bettingsystem.warning.messages', 'Warning messages will $1 be diplayed in chat.');
 $.lang.register('bettingsystem.saveformat.usage', 'Usage: !bet saveformat [date format] - Default is yy.M.dd');
